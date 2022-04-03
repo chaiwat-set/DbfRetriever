@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from datetime import datetime
 from tkinter import *
 from tkinter.filedialog import askopenfilename, asksaveasfilename
@@ -21,7 +23,7 @@ def get_possible_dayin_options(dbf_file_path):
   for record in dbf_file:
     possible_day_in_datetime.add(record[INDEX_TABLE["DAYIN"]].strftime("%Y/%m/%d"))
   dbf_file.close()
-  return sorted(possible_day_in_datetime)
+  return sorted(possible_day_in_datetime, reverse=True)
 
 
 def convert_index_to_info(lstbox):
@@ -34,8 +36,8 @@ def convert_index_to_info(lstbox):
 def search_data(dayins, dbf_file_path, result_box):
   selected_day_ins = convert_index_to_info(dayins)
   if DEBUG_ENABLED:
-    print(selected_day_ins)
-  search(selected_day_ins, dbf_file_path, result_box)
+    print(sorted(selected_day_ins))
+  search(sorted(selected_day_ins), dbf_file_path, result_box)
 
 
 def search(dayins, dbf_file_path, result_box):
@@ -75,7 +77,10 @@ def create_entry(row, company_file):
   entry = list()
   company_code = row[INDEX_TABLE["COMPANY"]].strip()
   company_name = lookup_company_name(company_code, company_file)
-  net_weight = abs(row[INDEX_TABLE["W2"]] - row[INDEX_TABLE["W1"]])
+  try:
+    net_weight = abs(row[INDEX_TABLE["W2"]] - row[INDEX_TABLE["W1"]])
+  except TypeError:
+    net_weight = -1
   entry.append(row[INDEX_TABLE["DAYIN"]].strftime("%Y/%m/%d"))
   entry.append(row[INDEX_TABLE["TRUCK"]].strip())
   entry.append(company_code)
