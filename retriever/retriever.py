@@ -7,12 +7,17 @@ import dbf
 import numpy
 import pandas
 import csv
+import os
 
 INDEX_TABLE = {"STAT": 0, "TRUCK": 1, "CARTYPE": 2, "COMPANY": 3, "PRODUCT": 4, "SUBCON": 5, "REMARK1": 6,
               "REMARK2": 7, "REMARK3": 8, "FACTOR": 9, "VATCASE": 10, "PRICE": 11, "RATE": 12, "VAT_R": 13,
               "TICKET1": 14, "DAYIN": 15, "TMIN": 16, "W1": 17, "TICKET2": 18, "DAYOUT": 19, "TMOUT": 20,
               "W2": 21, "ADJ_W1": 22, "ADJ_W2": 23, "ADJ_M": 24, "STAFF": 25, "PROCESS": 26, "PRINT1": 27,
               "PRINT2": 28, "SCALEIN": 29, "SCALEOUT": 30, "LINK": 31}
+PRODUCT_TABLE = {"001": "รำสด", "002": "แกลบ", "003": "น้ำมันรำดิบ", "999": "แกลบดำ"}
+SCRIPT_PATH = os.path.dirname(__file__)
+COMPANY_FILE_PATH = SCRIPT_PATH + r"/company.xlsx"
+PRODUCT_FILE_PATH = SCRIPT_PATH + r"/product.xlsx"
 DEBUG_ENABLED = False
 entries = list()
 
@@ -45,17 +50,18 @@ def search(dayins, dbf_file_path, result_box):
   dbf_file = dbf.Table(dbf_file_path)
   dbf_file.open(dbf.READ_ONLY)
   index = dbf_file.create_index(lambda rec: (rec.DAYIN))
-  company_file_path = askopenfilename(title="Open your compan.xlsx file")
 
   if DEBUG_ENABLED:
-    print(f"Opening {company_file_path}...")
+    print(f"Opening {COMPANY_FILE_PATH}...")
+    print(f"Opening {PRODUCT_FILE_PATH}...")
 
-  company_file = pandas.read_excel(company_file_path, sheet_name='Sheet1')
+  company_file = pandas.read_excel(COMPANY_FILE_PATH, sheet_name='Sheet1')
+  product_file = pandas.read_excel(PRODUCT_FILE_PATH, sheet_name='Sheet1')
   for dayin in dayins:
     date = datetime.strptime(dayin, "%Y/%m/%d").date()
     match = index.search(match=(date,), partial=True)
     for row in match:
-      entry = create_entry(row, company_file)
+      entry = create_entry(row, company_file, product_file)
       entries.append(entry)
   dbf_file.close()
 
@@ -73,16 +79,19 @@ def search(dayins, dbf_file_path, result_box):
   result_box.config(state="disabled")
 
 
-def create_entry(row, company_file):
+def create_entry(row, company_file, product_file):
   entry = list()
   company_code = row[INDEX_TABLE["COMPANY"]].strip()
   company_name = lookup_company_name(company_code, company_file)
+  product_code = row[INDEX_TABLE["PRODUCT"]].strip()
+  product_name = lookup_product_name(product_code, product_file)
   try:
     net_weight = abs(row[INDEX_TABLE["W2"]] - row[INDEX_TABLE["W1"]])
   except TypeError:
     net_weight = -1
   entry.append(row[INDEX_TABLE["DAYIN"]].strftime("%Y/%m/%d"))
   entry.append(row[INDEX_TABLE["TRUCK"]].strip())
+  entry.append(product_name)
   entry.append(company_code)
   entry.append(company_name)
   entry.append(net_weight)
@@ -96,10 +105,17 @@ def lookup_company_name(code, company_file):
   company_codes = company_file["CODE,C,10"].values
   index, = numpy.where(company_codes == code)
   if len(index) == 0:
-    return ""
+    return "UNDEFINED"
   else:
     company_names = company_file["NAME,C,60"].values
     return company_names[index][0]
+
+def lookup_product_name(code, df):
+  dataframe = df[df["CODE,C,10"] == int(code)]
+  try:
+    return dataframe["NAME,C,60"].loc[dataframe.index[0]]
+  except KeyError:
+    return "UNDEFINED"
 
 
 def create_listbox(root, name, width, data):
@@ -121,7 +137,7 @@ def create_listbox(root, name, width, data):
 def save_entries_to_csv():
   file_type = [('All tyes(*.*)', '*.*'),("csv file(*.csv)","*.csv")]
   save_file_name = asksaveasfilename(initialfile = 'output.csv', defaultextension=file_type, filetypes=file_type)
-  fields = ["Day-In", "Truck", "Company Code", "Company Name", "Net Weight", "Remark 1", "Remark 2", "Remark 3"]
+  fields = ["Day-In", "Truck", "Product", "Company Code", "Company Name", "Net Weight", "Remark 1", "Remark 2", "Remark 3"]
   with open(save_file_name, "w", newline='', encoding="utf-8") as f:
     writer = csv.writer(f)
     writer.writerow(fields)
