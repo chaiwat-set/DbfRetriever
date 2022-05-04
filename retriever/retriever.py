@@ -89,9 +89,9 @@ def create_entry(row, company_file, product_file):
     net_weight = abs(row[INDEX_TABLE["W2"]] - row[INDEX_TABLE["W1"]])
   except TypeError:
     net_weight = -1
+  entry.append(product_name)
   entry.append(row[INDEX_TABLE["DAYIN"]].strftime("%Y/%m/%d"))
   entry.append(row[INDEX_TABLE["TRUCK"]].strip())
-  entry.append(product_name)
   entry.append(company_code)
   entry.append(company_name)
   entry.append(net_weight)
@@ -137,7 +137,7 @@ def create_listbox(root, name, width, data):
 def save_entries_to_csv():
   file_type = [('All tyes(*.*)', '*.*'),("csv file(*.csv)","*.csv")]
   save_file_name = asksaveasfilename(initialfile = 'output.csv', defaultextension=file_type, filetypes=file_type)
-  fields = ["Day-In", "Truck", "Product", "Company Code", "Company Name", "Net Weight", "Remark 1", "Remark 2", "Remark 3"]
+  fields = ["Product", "Day-In", "Truck", "Company Code", "Company Name", "Net Weight", "Remark 1", "Remark 2", "Remark 3"]
   with open(save_file_name, "w", newline='', encoding="utf-8") as f:
     writer = csv.writer(f)
     writer.writerow(fields)
@@ -146,7 +146,7 @@ def save_entries_to_csv():
 
 def main():
   root = Tk()
-  root.title("Test")
+  root.title("DBF Retriever")
   root.geometry("1000x280")
   root.resizable(0,0)
 
