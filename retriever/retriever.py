@@ -82,9 +82,9 @@ def search(dayins, dbf_file_path, result_box):
 def create_entry(row, company_file, product_file):
   entry = list()
   company_code = row[INDEX_TABLE["COMPANY"]].strip()
-  company_name = lookup_company_name(company_code, company_file)
+  company_name = lookup_code(company_code, company_file)
   product_code = row[INDEX_TABLE["PRODUCT"]].strip()
-  product_name = lookup_product_name(product_code, product_file)
+  product_name = lookup_code(product_code, product_file)
   try:
     net_weight = abs(row[INDEX_TABLE["W2"]] - row[INDEX_TABLE["W1"]])
   except TypeError:
@@ -100,22 +100,12 @@ def create_entry(row, company_file, product_file):
   entry.append(row[INDEX_TABLE["REMARK3"]].strip())
   return entry
 
-
-def lookup_company_name(code, company_file):
-  company_codes = company_file["CODE,C,10"].values
-  index, = numpy.where(company_codes == code)
-  if len(index) == 0:
-    return "UNDEFINED"
-  else:
-    company_names = company_file["NAME,C,60"].values
-    return company_names[index][0]
-
-def lookup_product_name(code, df):
+def lookup_code(code, df):
   dataframe = df[df["CODE,C,10"] == int(code)]
   try:
     return dataframe["NAME,C,60"].loc[dataframe.index[0]]
-  except KeyError:
-    return "UNDEFINED"
+  except (KeyError, IndexError):
+    return f"UNDEFINED CODE '{code}'"
 
 
 def create_listbox(root, name, width, data):
