@@ -74,7 +74,7 @@ def search(dayins, dbf_file_path, result_box):
   result_box.delete("1.0", END)
   count = 1
   for entry in entries:
-    result_box.insert(END, f"Entry {count}:\n\t{entry[0]}, {entry[1]}, {entry[2]}, {entry[3]}, {entry[4]}, {entry[5]}, {entry[6]}, {entry[7]}\n\n")
+    result_box.insert(END, f"Entry {count}:\n\t{entry[0]}, {entry[1]}, {entry[2]}, {entry[3]}, {entry[4]}, {entry[5]}, {entry[6]}, {entry[7]}, {entry[8]}\n\n")
     count += 1
   result_box.config(state="disabled")
 
@@ -91,6 +91,7 @@ def create_entry(row, company_file, product_file):
     net_weight = -1
   entry.append(product_name)
   entry.append(row[INDEX_TABLE["DAYIN"]].strftime("%Y/%m/%d"))
+  entry.append(row[INDEX_TABLE["DAYOUT"]].strftime("%Y/%m/%d"))
   entry.append(row[INDEX_TABLE["TRUCK"]].strip())
   entry.append(company_code)
   entry.append(company_name)
@@ -127,7 +128,7 @@ def create_listbox(root, name, width, data):
 def save_entries_to_csv():
   file_type = [('All tyes(*.*)', '*.*'),("csv file(*.csv)","*.csv")]
   save_file_name = asksaveasfilename(initialfile = 'output.csv', defaultextension=file_type, filetypes=file_type)
-  fields = ["Product", "Day-In", "Truck", "Company Code", "Company Name", "Net Weight", "Remark 1", "Remark 2", "Remark 3"]
+  fields = ["Product", "Day-In", "Day-Out", "Truck", "Company Code", "Company Name", "Net Weight", "Remark 1", "Remark 2", "Remark 3"]
   with open(save_file_name, "w", newline='', encoding="utf-8") as f:
     writer = csv.writer(f)
     writer.writerow(fields)
