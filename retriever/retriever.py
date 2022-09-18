@@ -85,13 +85,15 @@ def create_entry(row, company_file, product_file):
   company_name = lookup_code(company_code, company_file)
   product_code = row[INDEX_TABLE["PRODUCT"]].strip()
   product_name = lookup_code(product_code, product_file)
+  day_in = lookup_day(row, "DAYIN")
+  day_out = lookup_day(row, "DAYOUT")
   try:
     net_weight = abs(row[INDEX_TABLE["W2"]] - row[INDEX_TABLE["W1"]])
   except TypeError:
     net_weight = -1
   entry.append(product_name)
-  entry.append(row[INDEX_TABLE["DAYIN"]].strftime("%Y/%m/%d"))
-  entry.append(row[INDEX_TABLE["DAYOUT"]].strftime("%Y/%m/%d"))
+  entry.append(day_in)
+  entry.append(day_out)
   entry.append(row[INDEX_TABLE["TRUCK"]].strip())
   entry.append(company_code)
   entry.append(company_name)
@@ -100,6 +102,12 @@ def create_entry(row, company_file, product_file):
   entry.append(row[INDEX_TABLE["REMARK2"]].strip())
   entry.append(row[INDEX_TABLE["REMARK3"]].strip())
   return entry
+
+def lookup_day(row, type):
+  try:
+    return row[INDEX_TABLE[type]].strftime("%Y/%m/%d")
+  except AttributeError:
+    return ""
 
 def lookup_code(code, df):
   dataframe = df[df["CODE,C,10"] == int(code)]
