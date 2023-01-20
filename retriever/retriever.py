@@ -87,13 +87,20 @@ def create_entry(row, company_file, product_file):
   product_name = lookup_code(product_code, product_file)
   day_in = lookup_day(row, "DAYIN")
   day_out = lookup_day(row, "DAYOUT")
+  weight_out = row[INDEX_TABLE["W2"]]
+  weight_in = row[INDEX_TABLE["W1"]]
+  if (weight_in < weight_out):
+    purchase_type = "SELL"
+  else:
+    purchase_type = "BUY"
   try:
-    net_weight = abs(row[INDEX_TABLE["W2"]] - row[INDEX_TABLE["W1"]])
+    net_weight = abs(weight_out - weight_in)
   except TypeError:
     net_weight = -1
   entry.append(product_name)
-  entry.append(day_in)
+  entry.append(purchase_type)
   entry.append(day_out)
+  entry.append(day_in)
   entry.append(row[INDEX_TABLE["TRUCK"]].strip())
   entry.append(company_code)
   entry.append(company_name)
@@ -136,7 +143,7 @@ def create_listbox(root, name, width, data):
 def save_entries_to_csv():
   file_type = [('All tyes(*.*)', '*.*'),("csv file(*.csv)","*.csv")]
   save_file_name = asksaveasfilename(initialfile = 'output.csv', defaultextension=file_type, filetypes=file_type)
-  fields = ["Product", "Day-In", "Day-Out", "Truck", "Company Code", "Company Name", "Net Weight", "Remark 1", "Remark 2", "Remark 3"]
+  fields = ["Product", "Buy/Sell", "Day-Out", "Day-In", "Truck", "Company Code", "Company Name", "Net Weight", "Remark 1", "Remark 2", "Remark 3"]
   with open(save_file_name, "w", newline='', encoding="utf-8") as f:
     writer = csv.writer(f)
     writer.writerow(fields)
