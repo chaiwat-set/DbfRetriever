@@ -89,16 +89,19 @@ def create_entry(row, company_file, product_file):
   day_out = lookup_day(row, "DAYOUT")
   weight_out = row[INDEX_TABLE["W2"]]
   weight_in = row[INDEX_TABLE["W1"]]
-  if (weight_in < weight_out):
-    purchase_type = "SELL"
-  else:
-    purchase_type = "BUY"
+  try:
+    if (weight_in < weight_out):
+      transaction_type = "SELL"
+    else:
+      transaction_type = "BUY"
+  except TypeError:
+    transaction_type = "UNDEFINED"
   try:
     net_weight = abs(weight_out - weight_in)
   except TypeError:
     net_weight = -1
   entry.append(product_name)
-  entry.append(purchase_type)
+  entry.append(transaction_type)
   entry.append(day_out)
   entry.append(day_in)
   entry.append(row[INDEX_TABLE["TRUCK"]].strip())
