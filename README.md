@@ -7,5 +7,12 @@ Instruction
 
    ![image](https://github.com/chaiwat-set/DbfRetriever/assets/19767823/149e8675-135c-46ae-a6d0-60b97de9cd34)
    
-3. Run the following command: `pip install dbf numpy pandas`. Wait for the installation to complete.
-4. Run the following command to start the program: `python retriever.py`.
+3. Run the following command and wait for the installation to be completed:
+   ```
+   pip install dbf numpy pandas
+   ```
+
+4. Run the following command to start the program:
+   ```
+   python retriever.py
+   ```
