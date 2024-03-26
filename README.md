@@ -9,7 +9,7 @@ Instruction
    
 3. Run the following command and wait for the installation to be completed:
    ```
-   pip install dbf numpy pandas
+   pip install dbf numpy pandas openpyxl
    ```
 
 4. Run the following command to start the program:
